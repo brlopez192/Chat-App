@@ -6,7 +6,7 @@ import { collection, addDoc, onSnapshot, query, orderBy } from 'firebase/firesto
 
 
 const Chat = ({ route, navigation, db}) => {
-  const { name } = route.params;
+  const { name, userID } = route.params;
   const backgroundColor = route.params.backgroundColor;
   const [messages, setMessages] = useState([]);
   const onSend = (newMessages) => {
@@ -51,7 +51,8 @@ const Chat = ({ route, navigation, db}) => {
         messages={messages}
         onSend={messages => onSend(messages)}
         user={{
-          _id: 1
+          _id: userID,
+          name: name
         }}
       />
       { Platform.OS === 'android' ? <KeyboardAvoidingView behavior="height" /> : null }
