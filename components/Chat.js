@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-import { GiftedChat } from "react-native-gifted-chat";
+import {GiftedChat} from 'react-native-gifted-chat';
 
 
 
@@ -31,6 +31,13 @@ const Chat = ({ route, navigation }) => {
  return (
 
    <View style={[styles.container, {backgroundColor:backgroundColor}]}>
+    <GiftedChat
+    messages={messages}
+    onSend={messages => onSend(messages)}
+    user={{
+      _id: 1
+    }}
+    /> 
    </View>
  );
 }
