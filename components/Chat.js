@@ -4,10 +4,13 @@ import { StyleSheet, View, Text, Platform, KeyboardAvoidingView, Alert } from 'r
 import { GiftedChat, Bubble, InputToolbar } from "react-native-gifted-chat";
 import { collection, addDoc, onSnapshot, query, orderBy } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomActions from './CustomActions';
+import MapView from 'react-native-maps';
+import { v4 as uuidv4 } from 'uuid';
 
 
 
-const Chat = ({ route, navigation, db, isConnected }) => {
+const Chat = ({ route, navigation, db, isConnected, storage }) => {
   const { name, userID } = route.params;
   const backgroundColor = route.params.backgroundColor;
   const [messages, setMessages] = useState([]);
@@ -63,7 +66,6 @@ const Chat = ({ route, navigation, db, isConnected }) => {
     else return null;
    }
     
-    
 
   const renderBubble = (props) => {
     return <Bubble
@@ -79,12 +81,56 @@ const Chat = ({ route, navigation, db, isConnected }) => {
     />
   }
 
+  //Custom ACtions
+  const renderCustomActions = (props) => {
+    return <CustomActions 
+      userID={userID} 
+      storage={storage} 
+      onSend={(newMessages => {
+      onSend([{
+        ...newMessages,
+        _id: uuidv4(),
+        createdAt: new Date (),
+        user: {
+          _id: userID,
+          name: name
+        }
+    }])
+    })} {...props}/>;
+  };
+
+  // Location
+  const renderCustomView = (props) => {
+    const { currentMessage} = props;
+    if (currentMessage.location) {
+      return (
+          <MapView
+            style={{width: 150,
+              height: 100,
+              borderRadius: 13,
+              margin: 3}}
+            region={{
+              latitude: currentMessage.location.latitude,
+              longitude: currentMessage.location.longitude,
+              latitudeDelta: 0.0922,
+              longitudeDelta: 0.0421,
+            }}
+          />
+      );
+    }
+    return null;
+  }
+
+
   return (
     <View style={[styles.messContainer, {backgroundColor: backgroundColor}]}>
       <GiftedChat
         messages={messages}
-        onSend={messages => onSend(messages)}
+        renderBubble={renderBubble}
         renderInputToolbar={renderInputToolbar}
+        onSend={messages => onSend(messages)}
+        renderActions={renderCustomActions}
+        renderCustomView={renderCustomView}
         user={{
           _id: userID,
           name: name
